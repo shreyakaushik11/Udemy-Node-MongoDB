@@ -87,9 +87,67 @@ MongoClient.connect(connectionURL, {useNewUrlParser:true}, (error, client)=>{
         console.log(user)
     })
 
+    //count the fields
     db.collection('users').find({age:25}).count((error, count)=>{
         console.log(count)
     })
+
+    db.collection('tasks').findOne({_id: new ObjectID("5d1f0cac42998e12817caee6")}, (error, taskDetails)=>{
+        if(error){
+            return console.log("Unable to fetch data")
+        }
+        console.log(taskDetails)
+    })
     
+    db.collection('tasks').find({completed: false}).toArray((error, taskDetails)=>{
+        console.log(taskDetails)
+    })
     
+    //update document using promises
+
+    db.collection('users').updateOne({
+        _id: new ObjectID("5d1efea5adc2c84d00d5b5fe")
+    },
+    {
+        $set: {
+            name : 'Mike'
+        }
+    }).then((result)=>{
+        console.log(result)
+    }).catch((error)=>{
+        console.log(error)
+    })
+
+    //update tasks which are incomplete
+    db.collection('tasks').updateMany({
+        completed: false
+    }, {
+        $set: {
+            completed: true
+        }
+    }).then((result)=>{
+        console.log(result)
+    }).catch((error)=>{
+        console.log(error)
+    })
+
+    //delete documents which have age 25
+
+    db.collection('users').deleteMany({
+        age: 25
+    }).then((result)=>{
+        console.log(result)
+    }).catch((error)=>{
+        console.log(error)
+    })
+
+    //delete a task
+
+    db.collection('tasks').deleteOne({
+        description : "work 8 hours"
+    }).then((result)=>{
+        console.log(result)
+    }).catch((error)=>{
+        console.log(error)
+    })
 })
