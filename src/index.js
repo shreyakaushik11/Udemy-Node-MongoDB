@@ -5,6 +5,9 @@ require('./db/mongoose')
 const User = require('./models/user')
 const Task = require('./models/task')
 
+const router = express.Router()
+app.use(router)
+
 app.use(express.json()) //parse json to object
 
 app.post('/users', (req, res)=>{
@@ -73,6 +76,72 @@ app.post('/tasks', (req, res)=>{
         res.status(201).send(task)
     }).catch((e)=>{
         res.status(400).send(e)
+    })
+})
+
+app.patch('/users/:id', (req, res)=>{
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['name', 'age', 'email', 'password']
+    const isValidOperation = updates.every((update)=>{
+        return allowedUpdates.includes(update)
+    })
+
+    if(!isValidOperation){
+        return res.status(400).send()
+    }
+    const _id = req.params.id
+    User.findByIdAndUpdate(_id, req.body, {new : true, runValidators: true}).then((user)=>{
+        if(!user){
+            return res.status(404).send()
+        }
+        res.send(user)
+    }).catch((e)=>{
+        res.status(400).send()
+    })
+})
+
+app.patch('/tasks/:id', (req, res)=>{
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['description', 'completed']
+    const isValidOperation = updates.every((update)=>{
+        return allowedUpdates.includes(update)
+    })
+
+    if(!isValidOperation){
+        return res.status(400).send()
+    }
+    const _id = req.params.id
+    Task.findByIdAndUpdate(_id, req.body, {new : true, runValidators: true}).then((task)=>{
+        if(!task){
+            return res.status(404).send()
+        }
+        res.send(task)
+    }).catch((e)=>{
+        res.status(400).send()
+    })
+})
+
+app.delete('/users/:id', (req, res)=>{
+    const _id = req.params.id
+    User.findByIdAndDelete(_id).then((user)=>{
+        if(!user){
+            return res.status(404).send()
+        }
+        res.send(user)
+    }).catch((e)=>{
+        res.status(500).send()
+    })
+})
+
+app.delete('/tasks/:id', (req, res)=>{
+    const _id = req.params.id
+    Task.findByIdAndDelete(_id).then((task)=>{
+        if(!task){
+            return res.status(404).send()
+        }
+        res.send(task)
+    }).catch((e)=>{
+        res.status(500).send()
     })
 })
 
